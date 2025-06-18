@@ -1,6 +1,7 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
+import Layout from '@/components/Layout';
 import UserDashboard from '@/components/dashboards/UserDashboard';
 import VendorDashboard from '@/components/dashboards/VendorDashboard';
 import AdminDashboard from '@/components/dashboards/AdminDashboard';
@@ -22,12 +23,12 @@ const Dashboard = () => {
 
   switch (profile.role) {
     case 'admin':
-      return <AdminDashboard />;
+      return <Layout><AdminDashboard /></Layout>;
     case 'vendor':
-      return <VendorDashboard />;
+      return <Layout><VendorDashboard /></Layout>;
     case 'user':
     default:
-      return <UserDashboard />;
+      return <Layout><UserDashboard /></Layout>;
   }
 };
 

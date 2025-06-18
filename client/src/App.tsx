@@ -10,9 +10,9 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Feed from "./pages/Feed";
-import Products from "./pages/Products";
+import Discovery from "./pages/Discovery";
 import ProductDetail from "./pages/ProductDetail";
-import Groups from "./pages/Groups";
+
 import GroupDetail from "./pages/GroupDetail";
 import Dashboard from "./pages/Dashboard";
 import Cart from "./pages/Cart";
@@ -33,20 +33,15 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/feed" element={
+              <Route path="/" element={
                 <ProtectedRoute>
                   <Feed />
                 </ProtectedRoute>
               } />
-              <Route path="/products" element={<Products />} />
+              <Route path="/welcome" element={<Index />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/discovery" element={<Discovery />} />
               <Route path="/products/:productId" element={<ProductDetail />} />
-              <Route path="/groups" element={
-                <ProtectedRoute>
-                  <Groups />
-                </ProtectedRoute>
-              } />
               <Route path="/groups/:groupId" element={
                 <ProtectedRoute>
                   <GroupDetail />

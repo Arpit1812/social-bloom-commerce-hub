@@ -28,6 +28,11 @@ const ProductForm: React.FC<ProductFormProps> = ({ onClose, existingData }) => {
     stock_quantity: existingData?.stock_quantity || 0,
     image_url: existingData?.image_url || '',
     is_active: existingData ? existingData.is_active : true,
+    group_discounts: existingData?.group_discounts || [
+      { members: 2, discount: 10 },
+      { members: 3, discount: 15 },
+      { members: 5, discount: 20 }
+    ],
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -72,10 +77,14 @@ const ProductForm: React.FC<ProductFormProps> = ({ onClose, existingData }) => {
       const imageUrl = await uploadImage();
       
       const productData = {
-        ...form,
-        price: parseFloat(form.price as string),
-        stock_quantity: parseInt(form.stock_quantity as string),
-        image_url: imageUrl,
+        name: form.name.trim(),
+        description: form.description?.trim() || null,
+        price: parseFloat(form.price as string) || 0,
+        category: form.category?.trim() || null,
+        stock_quantity: form.stock_quantity ? parseInt(form.stock_quantity as string) : null,
+        image_url: imageUrl || null,
+        group_discounts: form.group_discounts || [],
+        is_active: true,
       };
       
       if (existingData) {
@@ -233,6 +242,71 @@ const ProductForm: React.FC<ProductFormProps> = ({ onClose, existingData }) => {
                 />
               </div>
             )}
+          </div>
+
+          {/* Group Discount Configuration */}
+          <div>
+            <Label>Group Shopping Discounts</Label>
+            <p className="text-sm text-gray-600 mb-3">Set discounts for group orders (24-hour expiration)</p>
+            <div className="space-y-3">
+              {form.group_discounts.map((discount, index) => (
+                <div key={index} className="flex items-center gap-3 p-3 border rounded-lg">
+                  <div className="flex-1">
+                    <Label className="text-xs">Members Required</Label>
+                    <Input
+                      type="number"
+                      min="2"
+                      value={discount.members}
+                      onChange={(e) => {
+                        const newDiscounts = [...form.group_discounts];
+                        newDiscounts[index].members = parseInt(e.target.value) || 2;
+                        setForm({ ...form, group_discounts: newDiscounts });
+                      }}
+                      className="mt-1"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <Label className="text-xs">Discount %</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      max="50"
+                      value={discount.discount}
+                      onChange={(e) => {
+                        const newDiscounts = [...form.group_discounts];
+                        newDiscounts[index].discount = parseInt(e.target.value) || 0;
+                        setForm({ ...form, group_discounts: newDiscounts });
+                      }}
+                      className="mt-1"
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const newDiscounts = form.group_discounts.filter((_, i) => i !== index);
+                      setForm({ ...form, group_discounts: newDiscounts });
+                    }}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setForm({
+                    ...form,
+                    group_discounts: [...form.group_discounts, { members: 2, discount: 10 }]
+                  });
+                }}
+              >
+                Add Discount Tier
+              </Button>
+            </div>
           </div>
           
           <SheetFooter>

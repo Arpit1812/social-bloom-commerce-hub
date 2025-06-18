@@ -1,0 +1,415 @@
+please check all the features of the following pdf's and do what is not done yet and keep the already build features intact as it is, "Flow of GO
+
+From Vendor Side:
+From Vendor's Panel, Vendors can apply tiered discounts anytime at the time of product listing and can apply or change it anytime.
+(Refer 1st point in “Notes to Flow of GO)
+
+From User Side:
+User selects any product and create group from the product page.
+
+When group is created, specific link is generated for that specific GO (group order) and specific landing page (or a dynamic preview endpoint for each deal) is created for the use of redirecting other members to join who clicks this link (connected to IV point here).
+(Refer 2nd point)
+
+After user initiate GO, he will become admin of that group. Now, he has to share with his social circle on our platform or on different social media (Main: Whatapp, Instagram)
+(Refer 3rd  point)
+
+Now, by clicking link of GO, person will be redirected to the interface (landing page) of that specific GO on our site. From there, he has to select the product, and then he has to sign in as Guest (if he is not already sign in as the user of our platform), then only his item is added in GO.
+(Refer 4th point)
+
+(Note: When admin creates group from the product page [as mentioned in III. pt.], then he is redirected to the Interface of GO. From there he can see his selected product in “Cart tab”, can see ‘how GO works & T/c’ in “Info tab”. From the same interface, he will get the option to share the link.                       [This flow can be change as you deem appropriate])
+
+For any notifications (sent by our system) related to ongoing GO – (Refer 5th point)
+
+When final checkout is done by admin (by providing shipping address & payment details), only then vendor will receive order and will reflect in his dashboard.
+
+(Note:
+If final checkout is not done within 24 hrs, then that GO is cancelled & vendor will not receive this order.
+
+For clarification of delivery time in group order, put following message in small (i) icon or tooltip beside the estimated delivery time:
+
+Message:
+🚨 Group Order Info
+🛍️ Team Up, Then We Ship!
+Your item ships as soon as your group is complete and checkout is done. So rally your crew quickly for faster delivery!
+
+When vendor will receive the order, then normal procedure/ flow will be followed, as followed by other ecommerce companies.
+
+Features for MVP (only website)
+
+For Users / Customers:
+
+⦁	Mobile First design ( like meesho’s website on mobile phone )
+
+⦁	Main Sections in our platform:
+
+⦁	Social feed section ( named as “For You” ) ( home page ) : where
+
+⦁	all users can share content related to shopping only
+(means like any other social media, users can post videos, photos  and texts or mix of them ).
+⦁	Interaction features: users can like, comment, share and save/ bookmark each other’s posts.
+
+⦁	Advanced search bar at the top, so users can search queries for any profile, for content (posts).
+
+⦁	Users can post to:
+⦁	Their friends (so their friends or followers can see)
+⦁	Community (so anyone can see)
+
+Note: a) Posts will be shown on the feed of viewers and on                                   	     the profile of user (creator).
+
+b)  While opting for friends, list of friends will be     	       drop down.. from where all or some friends can be selected, to whom that post will be visible.
+
+c) They can post to their friends or community,	         irrespective of their profile is public or private.
+
+⦁	Interface of Feed Section:
+
+What should the interface of the feed section be like: Instagram or Reddit?
+
+I think reddit like interface would be better because there will be conversations.
+So, when the user scrolls the feed, posts will be visible.
+On feed, → each post is shown with a profile name, caption/ title, photos- videos. (From here also, viewer can like or share the post)  (On clicking photos, they should open in full view or photo view mode.)
+
+When clicking on a particular post → it should redirect to the post detail page. Then only, all details of post will be shown:
+Caption, Photos/ videos, text, tagged products & comments.
+
+⦁	Labels:
+
+(Reference: Reddit allow users to add flair/ label to their posts while creating the post, to categorize or highlight or clarify the content.. like “News”, “Review”, etc.)
+
+⦁	So, when a user creates a post, include a mandatory “Label” field in the post creation screen. Display a dropdown list of predefined “Labels” options (e.g., Review, Tutorial, unboxing) with colorful icons (like shoes for footwear label) for visual appeal.
+
+⦁	Add a “Create your own label” button for users to input a short custom label (limit to 7 words).
+Also add “None” label, if user don’t want put any label.
+
+⦁	Place this label on the post, where it will be easily visible by viewer, so that get context of the post.
+
+⦁	Connection to review section of product page:
+
+⦁	So, posts which has “Review” label and user tagged the product/s, then such posts will also be shown on review section (under post format) on respective product page.
+⦁	As soon as user select “review” label, then he will get the option of giving star rating, which is not compulsory.
+⦁	On review section (post format) of product page, viewers get the option to select different labels. So there, by default “Review” label is selected and posts with that label will be shown. But also they get the dropdown list to select other labels (like Outfit suggestion), then public posts & friend’s posts with that product tagged and with “Outfit suggestion” label, will be shown to viewer.
+
+(Note: I will provide list of labels later.)
+
+⦁	Product Tagging:
+
+While creating the post, user will have the option to tag the products in their post.
+
+In following manner, option of selecting the product will be there as they click that button:
+⦁	Products from their “My Order”
+⦁	Products from their “Cart”
+⦁	Products from their “Wishlist”
+⦁	Then, any product listed on our platform (they can search the product from there)
+
+In a post, Tagged products are shown below the content in a row, with their images. If there multiple products are tagged, then numbers are assigned to each of tagged products, (for easy reference).
+
+When viewer selects any tagged product, then as same as “meesho live” (if you want SS for the reference, then I’ll send you),  details of that product will swipe up (like name, photo, price, discounts, reviews, seller details). And from that interface only, viewer can order the product and then redirect to checkout page, so seamlessly shopping will be done.
+
+After tagged products, comments of that post will be shown.
+
+Note:  1) Product tagging option will also be given to the user 			      who comments on any post. So while commenting, any 		      user can tag products in the same manner as discussed   		      above and can give reference to the poster.
+2) There is no limit on number of product tagging.
+3) If user who tagged the product, purchased it from our 	     	      platform, then we will mention on the post that this   	 	      user is “verified purchaser”, so viewers will know that 		      he purchased from this platform only..so trust factor 		      will increase.
+
+
+  4) UI of product tagging while creating post & comments:
+      decide as you deem fit, being customer centric. 
+      Design of post interface after product tagging (from 		      pov of  viewer) is as bellow:
+⦁	Profile tagging like LinkedIn:
+
+Users can tag any profile (seller/ influencer/ user) in a post or a comment.
+Similar to LinkedIn, user as to type “@” and followed by the name of that profile. Then the list will be drop down of similar profiles.
+
+⦁	Discover Section ( Like homepage of Flipkart or Meesho): Where
+
+⦁	Advanced Search Bar at the top   &    Filter button where users can view products- category/ brand / price/ and other domain wise.
+
+⦁	Then, all categories of products are at the top
+
+⦁	Then products and categories are shown which are the mixture of:
+⦁	trending products
+⦁	as per user’s interest / past interaction / its history
+⦁	sponsored products
+⦁	 top trending group buying deals are shown in-between this section
+
+(Note:  Every product page should show two prices: single        purchase price and Group shopping price.)
+
+⦁	Group Buy section :  which show
+⦁	top trending group buying deals
+⦁	 group buying deals which give highest discounts are shown
+⦁	group deals as per their interest and past history & interaction with feed page.
+
+(Note:
+⦁	Its icon will be bigger than icons of all other sections.
+
+Flow of group shopping from both side: vendor and user will be shared in another document. )
+⦁	Profile Section:
+
+⦁	Mixture of profile section of instagram and meesho (for user’s own use).
+Mixture of:
+
+⦁	Like Insta, all user’s activity can be seen by him ( related to social interaction), like his uploaded content, followers, followings, saved  posts / etc
+
+⦁	Like Meesho, all user’s activity can be seen by him ( related to ecommerce activity ), like orders, past orders, live and past group buying details, order tracking, settings, language changing, ticket issue for customer care, FAQs, T&C, Policies,  etc
+
+⦁	Tabs in Profile section, when other users view that profile:
+
+⦁	Seller/ Influencer:  posts, 	listed product, trending products / bestsellers
+⦁	Other user:  posts, Curated list/ wishlist of products and Posts ( user can opt to make it public or for internal use only… irrespective of that his profile is public or private), Top purchases ( user has to manually select among his past purchases to include in this list)
+
+(Note: In posts tab, which user’s posts are to be shown to public or friends only – will be decided by user at the time of posting it {where he opt. friend only or public post}, irrespective of that his profile is public or private.)
+(Connected to the point- “2”)
+
+⦁	Platform tour guide for new users: like take tour of main 2-3 features of our platform, and with examples of diff usecases of feed page.
+
+⦁	Product page’s review section will be divided into 2 parts: post format & normal review format (like any other shopping app):
+
+⦁	Post Format:
+
+⦁	When product is tagged in feed’s post (post should be public), then this post is shown on that specific product page’s review section.  (Connected to “ a” )
+
+⦁	When purchaser (one who purchases the product on our platform) wants to post the review from his order history or from that specific product page, then post will be shown on both: feed page and product page’s review section, & by default, this post will be public.
+
+⦁	 Normal review format:
+
+Like on any other shopping app, user can write review (which is not in post format) from product page and if he is purchaser then can write from order history.
+
+
+Note:   1) Any purchaser can give star rating on product page, with 			       or w/o giving reviews.
+	  2) When user is giving review (in both: post and normal 		  		      format), then he will get option to give star rating along 		  	      with review.
+	      This star rating will be shown after or before the caption 		                 in small font, same as Flipkart. (Connected to “b”)
+3) Like flipkart, on the top part of review section on product 	              pg, overall star rating & total no. of ratings and reviews 	  	   will be shown for overall understanding of product to the 	   user.
+
+For Sellers:
+
+⦁	Shopify integration:  means sellers can sync their Shopify (or other platforms like Unicommerce ) account with their account on our platform.
+This syncs their product catalogue and order tracking with our platform. When a user places an order on the platform, it appears on the seller’s Shopify dashboard, making it easy for the seller without needing to learn the platform.
+
+⦁	Vendor will be given 2 options for tiered discounts for GO (group order), which can be applied to the entire product list or offered selectively (which can be done from their dashboard at any time).
+
+Tiered Discount Options (Let say vendor has 10 type of products):
+
+⦁	Option 1:
+Same tiered discounts apply to all products.
+
+Like for all 10 products,
+Members/ Participants	Discounts
+2	10%
+3	15%
+4	20%
+
+⦁	Option 2:
+Apply some tiered discounts to selected products and different tiered discounts to other products.
+
+For some 5 products: Bundle A  |  For another 5 products: Bundle B
+Members/ Participants	Discounts	Members/ Participants	Discounts
+2	10%	2	5%
+3	15%	3	10%
+4	20%	4	15%
+
+How it works when different tiered discounts are applied:
+
+Now, when admin initiate GO, then other members get the options to select a product from the same bundle from which admin select the product.
+
+Eg: If admin select the product from bundle A (from above table in Option 2), then other members will see and can select products from group A bundle only in that particular offer.
+
+
+Note: 1) if vendor applies same tiered discs to all his products, 	  	     		     then other members of GO will get and can select any 		     		      product from this vendor
+2) Products will be shown from the same vendor, from 		              which admin select his product, irrespective of Option 1 or 2.
+
+⦁	On product page - 2 Prices are Shown:
+
+⦁	Single Purchase price (as normal)
+
+⦁	Group Shopping price:
+
+To start GO, user (admin) has to select this “group shopping price” button. Then list will be drop down in which tiered discounts (different members required & discounts accordingly to it) are shown. Then user will select the option from tiered discounts that he wants to opt for (like he wants to form 3 members group for 15% discs or 2 members group for 10% discs).
+
+Note: On “Group shopping” button on product pg, the highest discount in the tiered discount will be shown.
+
+
+Design of 2 prices shown on product page:
+⦁	Contains of message, when GO’s link is shared:
+
+Message:
+
+👀 Want [Product Name] at extra [XX]% OFF + Free Shipping?
+
+I just started a Group Buy – we all unlock the deal once [X] of us join in! 🎯
+There are more products to choose from, too! 🛍️
+⏰    Hurry – deal closes on [Date] at [Time]! After that, we miss out on the extra [XX]%  discount.
+🔗 Tap to join: [Link]
+
+
+Note: 
+⦁	Name of product will of that product which admin selects for his purchase in this GO.
+
+⦁	Discount percentage and Required number of members are mentioned as per tiered discount deal selected by admin.
+
+Eg:  If admin select 3 members for extra 15% discounts, then mention that respective details in its respective place in the message.
+
+⦁	End time will be 24 hours from initiating the GO by admin.
+So, accordingly end time & date should be mention in the message automatically.
+
+⦁	Link preview sharing:  where the link automatically pulls in a product image (of a product which admin selects), title, and description above the message. So that, product image is shown above the message.
+
+⦁	Message have to display that this deal is with “free shipping”, when there is free shipping.
+
+⦁	What details are to be shown on interface of GO (landing page of GO):
+
+{Note: This interface is similar to & inspired by interface of “Crewcart” app in Shopify app store. But we don’t have to make it exact copy of Crewcart.
+Link: https://apps.shopify.com/crewcart?st_source=autocomplete&surface_detail=autocomplete_apps  (see 1st & 4th image in this link)}
+
+Landing page when someone click the link of GO:
+
+⦁	Cart Tab:
+
+By default “Cart tab” will open, when someone clicks the link of GO.
+Here, products & their details will be shown (which was selected by existing members of this GO).
+And, below that, in middle, there is “select your product” button (which should be highlighted so clearly visible to viewer).
+
+When viewer clicks that button to select the product, on the same interface, product list will swipe up with images (containing those products which belongs to the same vendor and same tiered discount which belongs to the product which admin selects).
+
+
+         Then as same as “meesho live”, viewer can click any product to see its   details, then product details will swipe up (like name, photo, price, discounts, reviews, seller details). 
+
+
+Then, after deciding, viewer will select the product to add in GO. 	When he selects his product, then on the same page, he get the 	option to “sign in as a Guest” OR “sign in/ Sign Up as a User”. If he 	selects Guest sign in, then he has to fill up details like name and 	phone number/ email id, and verify it by OTP.						
+After OTP verification and Guest sign in, and then final button is 	enable to add its product in this GO finally. 		
+⦁	Overview Tab:
+
+Here, there will be overall details like “overview tab in Crewcart”. But format will be change which is as follow:
+
+Shoppers	Products	Price	Discount @15%  (in Rs)	Amt Payable
+
+Total 	XXX
+
+(After that)
+Summary:
+Total Price:				xxx
+Total disc earned:		(xx)
+Amt Payable:			xxx
+
+Note:  Cart & Overview tab should be Real time which ensure that all participants see additions and changes instantly (in real time).
+
+⦁	Info & T/C  Tab:
+
+Info Section:
+Here, instructions about how group shopping works will be given.
+(I will provide it latter)
+
+T&C Section:
+
+⦁	If any member cancels or returns their order (except for defective or wrong items), the group discount will be recalculated based on the remaining number of participants.
+
+The refund for the cancelling/returning member will be adjusted accordingly.
+
+Example:
+
+Product price = ₹100
+• 2 members = 10% OFF → ₹90
+• 3 members = 15% OFF → ₹85
+
+If 3 members joined and got ₹85 price (@15% off), but 1 cancels later, the group drops to 2 members (now eligible for 10% OFF).
+
+So, that member’s refund will be ₹75, not ₹85.
+
+Why? The remaining 2 members now qualify for only ₹90 each (@10% OFF), but they already paid ₹85.
+To avoid the hassle of collecting ₹5 extra from each of them, this ₹10 shortfall is automatically adjusted from the cancelling / returning member’s refund.
+
+⦁	 Group Size Rule:
+
+1 user = 1 member (even if they buy more than 2 items).
+So, increasing the quantity of items does not increase the 				 group size or unlock additional discounts. Only unique 				 participants count toward the group size needed to unlock the 			 deal.
+⦁	If the required number of members doesn’t join within 24 hours from when the group is initiated, the group will be automatically cancelled and marked as invalid.
+
+But don’t worry — you can always start a new group and try again!
+
+⦁	Group Return Rule (Easy & Hassle-Free!)
+
+Returns? Super simple!
+Your group’s admin can place one return request for any member/s — just make sure it's within the return window shown on the product page.
+
+All returns are picked up together from the original delivery spot, so no one has to manage multiple pickups.
+Quick, clean, and sorted in one go!
+
+
+            (5) Love showing off your hauls or unboxing moments?
+	 Just hit record while opening your order — it’s super quick and 			 helps with returns (if needed).
+	 Plus… who knows, your video might go trending on GupShop (if 			 you share)!
+⦁	Notifications related to GO:
+
+⦁	Notify when any member joined:
+Trigger: when a new member joins the group
+Sent To: Admin
+Notification Message:
+
+🎉 Anil just joined your group!
+Only 2 more needed within 8 hrs to unlock the deal.
+Let’s do this! 💪
+
+⦁	Group Expiry Reminder
+
+Trigger: 1 hour before group deadline AND required members not yet 			     joined
+Sent To: All joined members (admin + members)
+Notification Message:
+
+⏰ 1 hour left! Only 1 more member needed to unlock the extra XX% OFF – or the deal expires.
+Invite now & save the group! 🔗💥
+
+CTA: Tap to invite or share again ➡️ [button]
+
+⦁	Group Completion – Final Checkout Reminder
+Trigger: When 0061ll required members joined
+Sent To: Admin only
+Notification Message:
+
+✅    Group is full! You’ve unlocked the deal.
+Now complete checkout within ___ (remaining time) by adding the address & payment details.
+
+CTA: Proceed to Checkout ➡️ [button]
+
+⦁	When admin completed the final checkout, then system has to send order details (summary type) to all members through Notification (which brings the user on GO’s interface) and Email/ message.
+Contain of this order summary:
+
+⦁	Title like: Congratulations group confirmed, You saved ₹xxx, tap to see full summary…
+⦁	Details about product, price, and discount of the products that he/ she ordered, estimated delivery date and if there are no shipping charges, then explicitly mention that it is “free delivery”.
+⦁	If they open notification, then they can track their order (same as Amazon or Flipkart).
+
+But, if they open the email/ message, then they get the link to see the order status, which redirect them to above interface (GO’s interface where they can track their order).
+⦁	Billing details:
+
+For admin:  Billing details like total price, total discount earned, total amt payable/ paid, amt recoverable from each member.
+
+For other members: Details like total price, total discount earned, amt payable to admin.
+
+Note: If any extra fees (like delivery or handling charges are levied) on GO, then that has to be divided among all members, which should be considered in above point.
+
+Note:  1) When any member sign in on our platform and guest user 			      who sign in as a guest, then we have to take permission for 			      notification, compulsorily, by saying that it is important for 			      communication.
+
+
+	2) If we are integrating chat feature inside GO interface, then on 		     that section, there will be 2 tabs: 
+
+	    a) Group chat: where members can message each other.	
+	    b) GO Notifications: All system-generated updates are 				        			         time stamped and listed here.  
+⦁	Make single page checkout if possible, in both: single order and group order.
+
+Means on one page, all details has to be filled up and shown when user (& admin in GO when all members joined) arrives on final checkout page, following details should be shown on single page:
+
+Section	Content	Notes
+
+Shipping Address	Name, mobile, full address, pincode	Allow saved addresses.
+
+Order Summary	Product image, name, qty, original price, discount, final price	Highlight group discount clearly if applicable.
+
+Charges Breakdown	- Subtotal, Discount, Shipping Charges / Free Shipping, Handling Fee / Platform Fee (if applicable), GST on Fee (if applicable),
+Final Payable Amount
+
+Payment Options	UPI, COD , Wallet, Cards
+
+Delivery Timeline	Show expected delivery date
+
+Place Order Button	CTA: “Place My Order” or “Unlock My Group Deal”
+
+⦁	Any user can create and join (created by other users) multiple GO at the same time.
+Any guest user can join multiple GO at the same time, but can’t create any GO without becoming user of our platform (by proper sign in)."
+

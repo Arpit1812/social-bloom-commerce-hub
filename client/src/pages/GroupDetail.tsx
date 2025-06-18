@@ -475,20 +475,7 @@ const GroupDetail = () => {
               Back to Groups
             </Button>
 
-            {/* Debug Info Panel */}
-            <div className="bg-gray-100 p-4 mb-6 rounded-lg text-xs font-mono">
-              <div className="font-bold mb-2">DEBUG INFO:</div>
-              <div>User ID: {user?.id}</div>
-              <div>Group ID: {groupId}</div>
-              <div>Is Joined: {String(group.isJoined)}</div>
-              <div>Has Pending Request: {String(group.hasPendingRequest)}</div>
-              <div>Latest Join Request: {group.latestJoinRequest ? JSON.stringify(group.latestJoinRequest) : 'None'}</div>
-              <div>Invite Only: {String(group.invite_only)}</div>
-              <div>Is Private: {String(group.is_private)}</div>
-              <div>Auto Approve: {String(group.auto_approve_requests)}</div>
-              <div>Is Creator: {String(isCreator)}</div>
-              <div>Mutation Pending: {String(toggleGroupMembershipMutation.isPending)}</div>
-            </div>
+
 
             {/* Group Header */}
             <div className="smooth-card p-6 mb-8">
@@ -600,6 +587,150 @@ const GroupDetail = () => {
                 </div>
               </div>
             </div>
+
+            {/* Tiered Discount Progress and Sharing Section */}
+            {canViewProduct && group.product && (
+              <div className="smooth-card p-6 mb-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* Left Side - Discount Progress */}
+                  <div>
+                    <h3 className="text-xl font-semibold mb-4 text-pink-600">Group Discount Progress</h3>
+                    
+                    {/* Current Status */}
+                    <div className="bg-gradient-to-r from-pink-50 to-rose-50 p-4 rounded-lg border border-pink-200 mb-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-medium">Current Members: {group.members.length}</span>
+                        <span className="text-lg font-bold text-pink-600">
+                          {group.members.length >= 4 ? '20% OFF' : 
+                           group.members.length >= 3 ? '15% OFF' : 
+                           group.members.length >= 2 ? '10% OFF' : 'No discount yet'}
+                        </span>
+                      </div>
+                      {group.members.length >= 2 && (
+                        <div className="text-sm text-gray-600">
+                          Everyone saves ${((group.product.price * (group.members.length >= 4 ? 0.2 : group.members.length >= 3 ? 0.15 : 0.1))).toFixed(2)} per item!
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Discount Tiers Progress */}
+                    <div className="space-y-3">
+                      <div className={`flex items-center justify-between p-3 rounded-lg border ${group.members.length >= 2 ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
+                        <div className="flex items-center gap-3">
+                          <div className={`w-6 h-6 rounded-full ${group.members.length >= 2 ? 'bg-green-500' : 'bg-gray-300'} flex items-center justify-center`}>
+                            {group.members.length >= 2 && <span className="text-white text-xs">✓</span>}
+                          </div>
+                          <span className="font-medium">2 Members - 10% OFF</span>
+                        </div>
+                        <span className="font-bold text-pink-600">${(group.product.price * 0.9).toFixed(2)}</span>
+                      </div>
+                      
+                      <div className={`flex items-center justify-between p-3 rounded-lg border ${group.members.length >= 3 ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
+                        <div className="flex items-center gap-3">
+                          <div className={`w-6 h-6 rounded-full ${group.members.length >= 3 ? 'bg-green-500' : 'bg-gray-300'} flex items-center justify-center`}>
+                            {group.members.length >= 3 && <span className="text-white text-xs">✓</span>}
+                          </div>
+                          <span className="font-medium">3 Members - 15% OFF</span>
+                        </div>
+                        <span className="font-bold text-pink-600">${(group.product.price * 0.85).toFixed(2)}</span>
+                      </div>
+                      
+                      <div className={`flex items-center justify-between p-3 rounded-lg border ${group.members.length >= 4 ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
+                        <div className="flex items-center gap-3">
+                          <div className={`w-6 h-6 rounded-full ${group.members.length >= 4 ? 'bg-green-500' : 'bg-gray-300'} flex items-center justify-center`}>
+                            {group.members.length >= 4 && <span className="text-white text-xs">✓</span>}
+                          </div>
+                          <span className="font-medium">4+ Members - 20% OFF</span>
+                        </div>
+                        <span className="font-bold text-pink-600">${(group.product.price * 0.8).toFixed(2)}</span>
+                      </div>
+                    </div>
+
+                    {group.members.length < 4 && (
+                      <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <p className="text-sm text-blue-700">
+                          Invite {4 - group.members.length} more {group.members.length === 3 ? 'person' : 'people'} to unlock maximum savings!
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Right Side - Sharing Options */}
+                  <div>
+                    <h3 className="text-xl font-semibold mb-4 text-pink-600">Share This Group</h3>
+                    
+                    {/* Group Link */}
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium mb-2">Group Link</label>
+                      <div className="flex gap-2">
+                        <input 
+                          type="text" 
+                          value={`${window.location.origin}/groups/${groupId}`}
+                          readOnly
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-sm"
+                        />
+                        <Button
+                          onClick={() => {
+                            navigator.clipboard.writeText(`${window.location.origin}/groups/${groupId}`);
+                            toast({ title: "Link copied to clipboard!" });
+                          }}
+                          variant="outline"
+                          size="sm"
+                        >
+                          Copy
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* QR Code */}
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium mb-2">QR Code</label>
+                      <div className="flex items-center justify-center bg-white p-4 border rounded-lg">
+                        <div className="w-32 h-32 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
+                          <div className="text-center">
+                            <div className="text-xs text-gray-500 mb-1">QR Code</div>
+                            <div className="text-xs text-gray-400">Scan to join</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* WhatsApp Share */}
+                    <div className="space-y-2">
+                      <Button
+                        onClick={() => {
+                          const message = `Hey! Join my shopping group "${group.name}" and get up to 20% OFF on ${group.product.name}! 🛍️\n\nWe currently have ${group.members.length} members${group.members.length >= 2 ? ` and everyone is already saving ${group.members.length >= 4 ? '20%' : group.members.length >= 3 ? '15%' : '10%'}!` : ', but we need at least 2 people to unlock discounts.'}\n\nJoin here: ${window.location.origin}/groups/${groupId}`;
+                          window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+                        }}
+                        className="w-full bg-green-500 hover:bg-green-600 text-white"
+                      >
+                        📱 Share on WhatsApp
+                      </Button>
+                      
+                      <Button
+                        onClick={() => {
+                          const message = `Join my shopping group "${group.name}" for up to 20% OFF! ${window.location.origin}/groups/${groupId}`;
+                          if (navigator.share) {
+                            navigator.share({
+                              title: group.name,
+                              text: message,
+                              url: `${window.location.origin}/groups/${groupId}`
+                            });
+                          } else {
+                            navigator.clipboard.writeText(message);
+                            toast({ title: "Message copied to clipboard!" });
+                          }
+                        }}
+                        variant="outline"
+                        className="w-full"
+                      >
+                        📤 Share with Friends
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Product Section */}
             {canViewProduct && group.product && (

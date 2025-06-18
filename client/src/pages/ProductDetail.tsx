@@ -31,6 +31,7 @@ const ProductDetail = () => {
   const [groupForm, setGroupForm] = useState({
     name: '',
     description: '',
+    targetMembers: 2,
   });
 
   // Fetch product details
@@ -241,7 +242,7 @@ const ProductDetail = () => {
     onSuccess: (data) => {
       console.log('Group created successfully:', data);
       setIsGroupDialogOpen(false);
-      setGroupForm({ name: '', description: '' });
+      setGroupForm({ name: '', description: '', targetMembers: 2 });
       toast({ title: "Group created successfully!" });
       navigate('/groups');
     },
@@ -370,8 +371,51 @@ const ProductDetail = () => {
                 )}
               </div>
 
-              <div className="text-4xl font-bold text-gray-800">
-                ${product.price}
+              {/* Pricing Section with Two Options */}
+              <div className="space-y-4">
+                {/* Single Purchase Price */}
+                <div className="border rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-semibold">Single Purchase</h3>
+                      <p className="text-sm text-gray-600">Buy now, ships immediately</p>
+                    </div>
+                    <div className="text-2xl font-bold text-gray-800">
+                      ${product.price}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Group Shopping Price */}
+                <div className="border-2 border-pink-300 rounded-lg p-4 bg-gradient-to-r from-pink-50 to-rose-50">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-lg font-semibold text-pink-600">Group Shopping</h3>
+                        <Badge variant="outline" className="text-pink-600 border-pink-300">
+                          Up to 20% OFF
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-gray-600">Team up with friends for extra savings! Groups expire in 24 hours.</p>
+                      
+                      {/* Default Discount Options */}
+                      <div className="mt-3 space-y-2">
+                        <div className="flex items-center gap-4 text-sm">
+                          <span className="font-medium">2 members: 10% OFF</span>
+                          <span className="text-pink-600 font-bold">${(product.price * 0.9).toFixed(2)}</span>
+                        </div>
+                        <div className="flex items-center gap-4 text-sm">
+                          <span className="font-medium">3 members: 15% OFF</span>
+                          <span className="text-pink-600 font-bold">${(product.price * 0.85).toFixed(2)}</span>
+                        </div>
+                        <div className="flex items-center gap-4 text-sm">
+                          <span className="font-medium">5+ members: 20% OFF</span>
+                          <span className="text-pink-600 font-bold">${(product.price * 0.8).toFixed(2)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {product.description && (
@@ -390,64 +434,142 @@ const ProductDetail = () => {
               )}
 
               <div className="space-y-3">
+                {/* Single Purchase Button */}
                 <Button
                   onClick={() => addToCartMutation.mutate()}
-                  className="w-full bg-gradient-to-r from-pink-500 to-rose-400 hover:from-pink-600 hover:to-rose-500"
+                  className="w-full bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800"
                   disabled={addToCartMutation.isPending}
                   size="lg"
                 >
                   <ShoppingCart className="w-5 h-5 mr-2" />
-                  {addToCartMutation.isPending ? 'Adding...' : 'Add to Cart'}
+                  {addToCartMutation.isPending ? 'Adding...' : 'Buy Now - Single Purchase'}
                 </Button>
                 
+                {/* Group Shopping Button */}
                 <Dialog open={isGroupDialogOpen} onOpenChange={setIsGroupDialogOpen}>
                   <DialogTrigger asChild>
                     <Button
-                      variant="outline"
-                      className="w-full border-pink-200 text-pink-600 hover:bg-pink-50"
+                      className="w-full bg-gradient-to-r from-pink-500 to-rose-400 hover:from-pink-600 hover:to-rose-500"
                       size="lg"
-                      disabled={!user} // Disable if user not logged in
+                      disabled={!user}
                     >
                       <Users className="w-5 h-5 mr-2" />
-                      Create Group for this Product
+                      Start Group Shopping - Up to 20% OFF
                     </Button>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className="sm:max-w-md">
                     <DialogHeader>
-                      <DialogTitle>Create Group for {product.name}</DialogTitle>
+                      <DialogTitle>Start Group Shopping for {product.name}</DialogTitle>
+                      <p className="text-sm text-gray-600">
+                        Choose your target group size and get friends to join within 24 hours!
+                      </p>
                     </DialogHeader>
                     <div className="space-y-4">
+                      {/* Member Target Selection */}
+                      <div>
+                        <Label>Select your target discount</Label>
+                        <div className="grid gap-2 mt-2">
+                          <div 
+                            className={`p-3 border rounded-lg cursor-pointer transition-all ${
+                              groupForm.targetMembers === 2 
+                                ? 'border-pink-500 bg-pink-50' 
+                                : 'border-gray-200 hover:border-pink-300'
+                            }`}
+                            onClick={() => setGroupForm({ ...groupForm, targetMembers: 2 })}
+                          >
+                            <div className="flex justify-between items-center">
+                              <span className="font-medium">2 members</span>
+                              <div className="text-right">
+                                <div className="text-sm font-bold text-pink-600">10% OFF</div>
+                                <div className="text-xs text-gray-500">
+                                  ${(product.price * 0.9).toFixed(2)} each
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div 
+                            className={`p-3 border rounded-lg cursor-pointer transition-all ${
+                              groupForm.targetMembers === 3 
+                                ? 'border-pink-500 bg-pink-50' 
+                                : 'border-gray-200 hover:border-pink-300'
+                            }`}
+                            onClick={() => setGroupForm({ ...groupForm, targetMembers: 3 })}
+                          >
+                            <div className="flex justify-between items-center">
+                              <span className="font-medium">3 members</span>
+                              <div className="text-right">
+                                <div className="text-sm font-bold text-pink-600">15% OFF</div>
+                                <div className="text-xs text-gray-500">
+                                  ${(product.price * 0.85).toFixed(2)} each
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div 
+                            className={`p-3 border rounded-lg cursor-pointer transition-all ${
+                              groupForm.targetMembers === 5 
+                                ? 'border-pink-500 bg-pink-50' 
+                                : 'border-gray-200 hover:border-pink-300'
+                            }`}
+                            onClick={() => setGroupForm({ ...groupForm, targetMembers: 5 })}
+                          >
+                            <div className="flex justify-between items-center">
+                              <span className="font-medium">5 members</span>
+                              <div className="text-right">
+                                <div className="text-sm font-bold text-pink-600">20% OFF</div>
+                                <div className="text-xs text-gray-500">
+                                  ${(product.price * 0.8).toFixed(2)} each
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
                       <div>
                         <Label htmlFor="groupName">Group Name</Label>
                         <Input
                           id="groupName"
                           value={groupForm.name}
                           onChange={(e) => setGroupForm({ ...groupForm, name: e.target.value })}
-                          placeholder="Enter group name"
+                          placeholder="e.g., Sarah's Shopping Squad"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="groupDescription">Description</Label>
+                        <Label htmlFor="groupDescription">Description (Optional)</Label>
                         <Textarea
                           id="groupDescription"
                           value={groupForm.description}
                           onChange={(e) => setGroupForm({ ...groupForm, description: e.target.value })}
-                          placeholder="Describe your group"
+                          placeholder="Tell your friends what this group is about..."
+                          rows={3}
                         />
                       </div>
-                      <Button
-                        onClick={() => {
-                          if (!user) {
-                            toast({ title: "Please login to create a group.", variant: "destructive"});
-                            return;
-                          }
-                          createGroupMutation.mutate();
-                        }}
-                        className="w-full"
-                        disabled={!groupForm.name || createGroupMutation.isPending || !user}
-                      >
-                        {createGroupMutation.isPending ? 'Creating...' : 'Create Group'}
-                      </Button>
+                      
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          onClick={() => setIsGroupDialogOpen(false)}
+                          className="flex-1"
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          onClick={() => {
+                            if (!user) {
+                              toast({ title: "Please login to create a group.", variant: "destructive"});
+                              return;
+                            }
+                            createGroupMutation.mutate();
+                          }}
+                          className="flex-1 bg-gradient-to-r from-pink-500 to-rose-400 hover:from-pink-600 hover:to-rose-500"
+                          disabled={!groupForm.name || createGroupMutation.isPending || !user}
+                        >
+                          {createGroupMutation.isPending ? 'Creating...' : 'Create Group'}
+                        </Button>
+                      </div>
                     </div>
                   </DialogContent>
                 </Dialog>

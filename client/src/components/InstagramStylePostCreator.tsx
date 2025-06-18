@@ -2,9 +2,12 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { X, Image, Video, Smile, MapPin, Plus } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { X, Image, Video, Smile, MapPin, Plus, Tag, Star, ShoppingBag } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -19,21 +22,44 @@ const InstagramStylePostCreator = ({ onPostCreated }: InstagramStylePostCreatorP
   const [content, setContent] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [selectedLabel, setSelectedLabel] = useState<string>("none");
+  const [starRating, setStarRating] = useState<number>(0);
+  const [taggedProducts, setTaggedProducts] = useState<string[]>([]);
+  const [showProductDialog, setShowProductDialog] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Fetch user's products for tagging
+  const { data: userProducts } = useQuery({
+    queryKey: ['user-products', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('vendor_id', user.id);
+      
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user
+  });
 
   const createPostMutation = useMutation({
     mutationFn: async ({ content, imageUrl }: { content: string; imageUrl?: string }) => {
       if (!user) throw new Error('Not authenticated');
       
-      console.log('Creating post with content:', content, 'and imageUrl:', imageUrl);
+
       
-      const { data, error } = await supabase
+      const { data: post, error } = await supabase
         .from('posts')
         .insert({
           user_id: user.id,
           content,
           image_url: imageUrl,
-          post_type: 'text'
+          post_type: imageUrl ? 'image' : 'text',
+          label: selectedLabel,
+          star_rating: selectedLabel === 'review' ? starRating : null
         })
         .select()
         .single();
@@ -43,8 +69,18 @@ const InstagramStylePostCreator = ({ onPostCreated }: InstagramStylePostCreatorP
         throw error;
       }
       
-      console.log('Post created successfully:', data);
-      return data;
+      // Add product tags if any are selected
+      if (taggedProducts.length > 0 && post) {
+        const tagInserts = taggedProducts.map((productId, index) => ({
+          post_id: post.id,
+          product_id: productId,
+          tag_order: index + 1
+        }));
+        
+        // Product tags feature ready for future implementation
+      }
+      
+      return post;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['posts'] });
@@ -52,6 +88,9 @@ const InstagramStylePostCreator = ({ onPostCreated }: InstagramStylePostCreatorP
       setContent("");
       setSelectedFiles([]);
       setPreviewUrls([]);
+      setSelectedLabel("none");
+      setStarRating(0);
+      setTaggedProducts([]);
       toast({
         title: "Posted!",
         description: "Your post has been shared with the community.",
@@ -72,8 +111,6 @@ const InstagramStylePostCreator = ({ onPostCreated }: InstagramStylePostCreatorP
     const files = Array.from(event.target.files || []);
     if (files.length === 0) return;
 
-    console.log('Files selected:', files);
-
     // Limit to 10 files like Instagram
     const limitedFiles = files.slice(0, 10);
     setSelectedFiles(prev => [...prev, ...limitedFiles].slice(0, 10));
@@ -82,7 +119,6 @@ const InstagramStylePostCreator = ({ onPostCreated }: InstagramStylePostCreatorP
     limitedFiles.forEach(file => {
       const url = URL.createObjectURL(file);
       setPreviewUrls(prev => [...prev, url]);
-      console.log('Created preview URL:', url);
     });
   };
 

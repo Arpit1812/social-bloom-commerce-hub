@@ -12,8 +12,6 @@ const GroupsPreview = () => {
   const { data: groups = [], isLoading, error } = useQuery({
     queryKey: ['groups-preview'],
     queryFn: async () => {
-      console.log('GroupsPreview: Starting fetch...');
-      
       try {
         // Get basic group data with a simple query
         const { data: groupsData, error: groupsError } = await supabase
@@ -21,23 +19,17 @@ const GroupsPreview = () => {
           .select('*')
           .limit(3);
         
-        console.log('GroupsPreview: Groups query result:', { groupsData, groupsError });
-        
         if (groupsError) {
-          console.error('GroupsPreview: Error fetching groups:', groupsError);
           throw groupsError;
         }
 
         if (!groupsData || groupsData.length === 0) {
-          console.log('GroupsPreview: No groups found in database');
           return [];
         }
 
         // Get all unique creator IDs and product IDs
         const creatorIds = [...new Set(groupsData.map(g => g.creator_id))];
         const productIds = [...new Set(groupsData.map(g => g.product_id).filter(Boolean))];
-        
-        console.log('GroupsPreview: Processing groups:', { groupsData, creatorIds, productIds });
         
         // Get creators in parallel
         const creatorsPromise = creatorIds.length > 0 
