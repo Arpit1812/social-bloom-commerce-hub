@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -6,7 +5,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Heart, ShoppingCart, Trash2, ArrowLeft } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Heart, ShoppingCart, Trash2, ArrowLeft, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -16,108 +16,213 @@ const Wishlist = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
-  // Fetch wishlist items
-  const { data: wishlistItems = [], isLoading } = useQuery({
-    queryKey: ['wishlist', user?.id],
+  const {
+    data: wishlistItems = [],
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["wishlist", user?.id],
     queryFn: async () => {
-      if (!user) return [];
-      
+      if (!user?.id) {
+        console.log("No user ID found");
+        return [];
+      }
+
+      console.log("Fetching wishlist for user:", user.id);
+
       const { data, error } = await supabase
-        .from('wishlist')
-        .select(`
-          *,
-          products (
-            *,
-            vendor_profile:profiles!vendor_id (
-              full_name,
-              email
-            ),
-            vendor_kyc:vendor_kyc!vendor_id (
-              display_business_name,
-              business_name
-            )
+        .from("wishlist")
+        .select(
+          `
+          id,
+          user_id,
+          product_id,
+          added_at,
+          products!inner (
+            id,
+            name,
+            price,
+            image_url
           )
-        `)
-        .eq('user_id', user.id)
-        .order('added_at', { ascending: false });
-      
-      if (error) throw error;
-      return data;
+        `
+        )
+        .eq("user_id", user.id)
+        .order("added_at", { ascending: false });
+
+      if (error) {
+        console.error("Supabase error:", error);
+        throw error;
+      }
+
+      console.log("Wishlist data fetched:", data);
+
+      return data?.filter((item) => item.products) || [];
     },
-    enabled: !!user,
+    enabled: !!user?.id,
+    retry: 3,
+    staleTime: 5 * 60 * 1000,
   });
 
-  // Remove from wishlist mutation
   const removeFromWishlistMutation = useMutation({
     mutationFn: async (productId: string) => {
+      if (!user?.id) throw new Error("User not authenticated");
+
       const { error } = await supabase
-        .from('wishlist')
+        .from("wishlist")
         .delete()
-        .eq('user_id', user?.id)
-        .eq('product_id', productId);
-      
+        .eq("user_id", user.id)
+        .eq("product_id", productId);
+
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['wishlist'] });
+      queryClient.invalidateQueries({ queryKey: ["wishlist"] });
       toast({ title: "Removed from wishlist" });
     },
     onError: (error: any) => {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      console.error("Error removing from wishlist:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to remove item from wishlist",
+        variant: "destructive",
+      });
     },
   });
 
-  // Add to cart mutation
   const addToCartMutation = useMutation({
     mutationFn: async (productId: string) => {
-      const { error } = await supabase
-        .from('cart_items')
-        .insert({
-          user_id: user?.id,
+      if (!user?.id) throw new Error("User not authenticated");
+      const { data: existingItem } = await supabase
+        .from("cart_items")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("product_id", productId)
+        .single();
+
+      if (existingItem) {
+        const { error } = await supabase
+          .from("cart_items")
+          .update({ quantity: existingItem.quantity + 1 })
+          .eq("id", existingItem.id);
+
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("cart_items").insert({
+          user_id: user.id,
           product_id: productId,
-          quantity: 1
+          quantity: 1,
         });
-      
-      if (error) throw error;
+
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cart-count'] });
-      toast({ title: "Added to cart" });
+      queryClient.invalidateQueries({ queryKey: ["cart-count"] });
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+      toast({ title: "Moved to cart" });
     },
     onError: (error: any) => {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      console.error("Error adding to cart:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to move item to cart",
+        variant: "destructive",
+      });
     },
   });
 
   const calculateTotal = () => {
-    return wishlistItems.reduce((sum, item) => sum + (item.products?.price || 0), 0);
+    return wishlistItems.reduce((sum, item) => {
+      const price = item.products?.price || 0;
+      return sum + price;
+    }, 0);
   };
 
-  const handleCheckout = () => {
-    // Add all wishlist items to cart and navigate to cart
-    wishlistItems.forEach(item => {
-      if (item.products?.id) {
+  const handleCheckout = async () => {
+    if (!wishlistItems.length) return;
+
+    try {
+      for (const item of wishlistItems) {
+        if (item.products?.id) {
+          await addToCartMutation.mutateAsync(item.products.id);
+        }
+      }
+      navigate("/cart");
+    } catch (error) {
+      console.error("Error during checkout:", error);
+    }
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedItems(wishlistItems.map((item) => item.id));
+    } else {
+      setSelectedItems([]);
+    }
+  };
+
+  const handleItemSelect = (id: string, checked: boolean) => {
+    if (checked) {
+      setSelectedItems((prev) => [...prev, id]);
+    } else {
+      setSelectedItems((prev) => prev.filter((itemId) => itemId !== id));
+    }
+  };
+
+  const handleBulkRemove = () => {
+    selectedItems.forEach((id) => {
+      const item = wishlistItems.find((i) => i.id === id);
+      if (item?.products?.id) {
+        removeFromWishlistMutation.mutate(item.products.id);
+      }
+    });
+    setSelectedItems([]);
+  };
+
+  const handleBulkAddToCart = () => {
+    selectedItems.forEach((id) => {
+      const item = wishlistItems.find((i) => i.id === id);
+      if (item?.products?.id) {
         addToCartMutation.mutate(item.products.id);
       }
     });
-    navigate('/cart');
+    setSelectedItems([]);
   };
 
-  const getVendorName = (product: any) => {
-    if (Array.isArray(product?.vendor_kyc) && product.vendor_kyc.length > 0) {
-      return product.vendor_kyc[0]?.display_business_name || 
-             product.vendor_kyc[0]?.business_name;
-    }
-    return product?.vendor_profile?.full_name || 'Unknown Vendor';
-  };
+  if (error) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Header />
+        <div className="container mx-auto px-4 py-8 mt-20">
+          <div className="text-center">
+            <p className="text-red-500 font-medium">
+              Error loading wishlist: {error.message}
+            </p>
+            <Button
+              onClick={() =>
+                queryClient.invalidateQueries({ queryKey: ["wishlist"] })
+              }
+              className="mt-4 bg-pink-600 hover:bg-pink-700 text-white"
+            >
+              Retry
+            </Button>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-white">
         <Header />
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center">Loading your wishlist...</div>
+        <div className="container mx-auto px-4 py-8 mt-20">
+          <div className="text-center text-gray-600 font-medium">
+            Loading your wishlist...
+          </div>
         </div>
         <Footer />
       </div>
@@ -125,95 +230,187 @@ const Wishlist = () => {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-white">
       <Header />
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 mt-20">
         <div className="max-w-6xl mx-auto">
-          <div className="flex items-center mb-6">
-            <Button
-              variant="ghost"
-              onClick={() => navigate(-1)}
-              className="mr-4"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
-            <h1 className="text-3xl font-bold">My Wishlist</h1>
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center">
+              <Button
+                variant="ghost"
+                onClick={() => navigate(-1)}
+                className="mr-4 hover:bg-gray-100 transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2 text-gray-600" />
+                Back
+              </Button>
+              <h1 className="text-3xl font-bold text-gray-800">My Wishlist</h1>
+              {wishlistItems.length > 0 && (
+                <span className="ml-4 text-sm text-gray-500 font-medium">
+                  ({wishlistItems.length} item
+                  {wishlistItems.length !== 1 ? "s" : ""})
+                </span>
+              )}
+            </div>
           </div>
 
           {wishlistItems.length === 0 ? (
-            <div className="text-center py-12">
-              <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-600 mb-2">Your wishlist is empty</h3>
-              <p className="text-gray-500 mb-4">Start adding products you love!</p>
-              <Button onClick={() => navigate('/products')}>
+            <div className="text-center py-16 bg-gradient-to-br from-gray-50 to-white rounded-xl shadow-sm">
+              <Heart className="w-16 h-16 text-pink-300 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                Your wishlist is empty
+              </h3>
+              <p className="text-gray-500 mb-6">
+                Discover great deals and add items you love!
+              </p>
+              <Button
+                onClick={() => navigate("/products")}
+                className="bg-pink-600 hover:bg-pink-700 text-white transition-colors"
+              >
                 Browse Products
               </Button>
             </div>
           ) : (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                {wishlistItems.map((item) => (
-                  <Card key={item.id} className="overflow-hidden">
-                    <div className="relative">
-                      <img 
-                        src={item.products?.image_url || "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=300&h=300&fit=crop"}
-                        alt={item.products?.name}
-                        className="w-full h-48 object-cover cursor-pointer hover:scale-105 transition-transform duration-300"
-                        onClick={() => navigate(`/products/${item.products?.id}`)}
-                      />
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+              <div className="lg:col-span-3">
+                <div className="flex items-center mb-4">
+                  <Checkbox
+                    id="select-all"
+                    onCheckedChange={handleSelectAll}
+                    className="mr-2"
+                  />
+                  <label htmlFor="select-all" className="text-sm text-gray-600">
+                    Select All
+                  </label>
+                  {selectedItems.length > 0 && (
+                    <div className="ml-auto flex gap-2">
                       <Button
-                        variant="ghost"
+                        variant="outline"
                         size="sm"
-                        className="absolute top-2 right-2 bg-white/80 hover:bg-white"
-                        onClick={() => removeFromWishlistMutation.mutate(item.products?.id)}
+                        onClick={handleBulkAddToCart}
                       >
-                        <Trash2 className="w-4 h-4 text-red-500" />
+                        Move Selected to Cart
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleBulkRemove}
+                        className="text-red-500 border-red-300"
+                      >
+                        Remove Selected
                       </Button>
                     </div>
-                    
-                    <CardContent className="p-4">
-                      <h3 
-                        className="font-semibold mb-1 cursor-pointer hover:text-pink-600"
-                        onClick={() => navigate(`/products/${item.products?.id}`)}
-                      >
-                        {item.products?.name}
-                      </h3>
-                      <p className="text-sm text-pink-600 mb-2">
-                        by {getVendorName(item.products)}
-                      </p>
-                      
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-lg font-bold text-gray-800">${item.products?.price}</span>
+                  )}
+                </div>
+                <div className="space-y-6">
+                  {wishlistItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex items-start border-b border-gray-200 pb-6"
+                    >
+                      <Checkbox
+                        id={`item-${item.id}`}
+                        checked={selectedItems.includes(item.id)}
+                        onCheckedChange={(checked) =>
+                          handleItemSelect(item.id, checked as boolean)
+                        }
+                        className="mt-4 mr-4"
+                      />
+                      <div className="flex-1 flex gap-4">
+                        <img
+                          src={
+                            item.products?.image_url ||
+                            "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=300&h=300&fit=crop"
+                          }
+                          alt={item.products?.name || "Product"}
+                          className="w-24 h-24 object-cover rounded-md"
+                          onClick={() =>
+                            navigate(`/products/${item.products?.id}`)
+                          }
+                          onError={(e) => {
+                            e.currentTarget.src =
+                              "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=300&h=300&fit=crop";
+                          }}
+                        />
+                        <div className="flex-1">
+                          <h3
+                            className="font-semibold text-gray-800 cursor-pointer hover:text-pink-600 transition-colors"
+                            onClick={() =>
+                              navigate(`/products/${item.products?.id}`)
+                            }
+                          >
+                            {item.products?.name || "Unnamed Product"}
+                          </h3>
+                          <span className="text-lg font-bold text-gray-900 block mt-1">
+                            ${item.products?.price?.toFixed(2) || "0.00"}
+                          </span>
+                          <p className="text-sm text-green-600 mt-1">
+                            In stock
+                          </p>
+                          <div className="flex gap-2 mt-2">
+                            <Button
+                              onClick={() =>
+                                addToCartMutation.mutate(item.products?.id)
+                              }
+                              className="bg-pink-600 hover:bg-pink-700 text-white transition-colors rounded-md text-sm"
+                              disabled={addToCartMutation.isPending}
+                            >
+                              <ShoppingCart className="w-4 h-4 mr-2" />
+                              {addToCartMutation.isPending
+                                ? "Moving..."
+                                : "Move to Cart"}
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-red-500 border-red-300 hover:bg-red-50"
+                              onClick={() =>
+                                removeFromWishlistMutation.mutate(
+                                  item.products?.id
+                                )
+                              }
+                              disabled={removeFromWishlistMutation.isPending}
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Remove
+                            </Button>
+                          </div>
+                        </div>
                       </div>
-                      
-                      <Button
-                        onClick={() => addToCartMutation.mutate(item.products?.id)}
-                        className="w-full bg-gradient-to-r from-pink-500 to-rose-400 hover:from-pink-600 hover:to-rose-500"
-                        disabled={addToCartMutation.isPending}
-                      >
-                        <ShoppingCart className="w-4 h-4 mr-2" />
-                        Add to Cart
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xl font-semibold">Wishlist Summary</h3>
-                  <span className="text-2xl font-bold">${calculateTotal().toFixed(2)}</span>
+              <div className="lg:col-span-1">
+                <div className="bg-white p-6 rounded-xl shadow-md sticky top-24 border border-gray-100">
+                  <h3 className="text-xl font-semibold text-gray-800 mb-4">
+                    Wishlist Summary
+                  </h3>
+                  <div className="space-y-2 mb-4 text-sm text-gray-600">
+                    <div className="flex justify-between">
+                      <span>Items</span>
+                      <span>{wishlistItems.length}</span>
+                    </div>
+                    <div className="flex justify-between font-bold text-gray-900">
+                      <span>Subtotal</span>
+                      <span>${calculateTotal().toFixed(2)}</span>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={handleCheckout}
+                    className="w-full bg-pink-600 hover:bg-pink-700 text-white transition-colors rounded-md"
+                    disabled={
+                      addToCartMutation.isPending || wishlistItems.length === 0
+                    }
+                  >
+                    {addToCartMutation.isPending
+                      ? "Processing..."
+                      : "Proceed to Checkout"}
+                  </Button>
                 </div>
-                <Button
-                  onClick={handleCheckout}
-                  className="w-full bg-gradient-to-r from-pink-500 to-rose-400 hover:from-pink-600 hover:to-rose-500"
-                  disabled={addToCartMutation.isPending}
-                >
-                  Add All to Cart & Checkout
-                </Button>
               </div>
-            </>
+            </div>
           )}
         </div>
       </div>

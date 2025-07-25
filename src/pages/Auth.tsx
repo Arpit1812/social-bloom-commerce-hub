@@ -1,20 +1,20 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Heart, Users, ShoppingBag } from "lucide-react";
+import { Heart, UsersThree, ShoppingBagOpen } from "@phosphor-icons/react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { motion } from "framer-motion";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const [userType, setUserType] = useState("user");
+  const [userType, setUserType] = useState<"user" | "vendor" | "admin">("user");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -39,16 +39,10 @@ const Auth = () => {
           title: "Welcome back!",
           description: "You have successfully logged in.",
         });
-        navigate("/dashboard");
+        navigate(`/users/${data.user.id}`);
       } else {
-        const { error } = await signUp(email, password, fullName);
+        const { error } = await signUp(email, password, fullName, userType);
         if (error) throw error;
-        
-        // Update user role if vendor
-        if (userType === "vendor") {
-          // The role will be updated via the trigger, but we'll handle vendor-specific logic in the dashboard
-        }
-        
         toast({
           title: "Account created!",
           description: "Please check your email to verify your account.",
@@ -67,20 +61,43 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-rose-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="smooth-card p-8">
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center space-x-2 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-pink-400 to-rose-500 rounded-2xl flex items-center justify-center">
-                <Heart className="w-7 h-7 text-white" />
-              </div>
-              <span className="text-3xl font-bold gradient-text">SocialShop</span>
-            </div>
-            <h1 className="text-2xl font-bold mb-2">
-              {isLogin ? "Welcome Back" : "Join SocialShop"}
-            </h1>
-            <p className="text-gray-600">
-              {isLogin ? "Sign in to your account" : "Create your account to get started"}
+      <motion.div
+        className="w-full max-w-md md:max-w-lg"
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+      >
+        <motion.div
+          className="bg-white rounded-2xl shadow-xl p-8 border border-pink-100"
+          whileHover={{
+            scale: 1.02,
+            boxShadow: "0 10px 20px rgba(236, 72, 153, 0.2)",
+          }}
+          transition={{ duration: 0.3 }}
+        >
+          <div className="text-center mb-10">
+            <motion.div
+              className="flex items-center justify-center space-x-3 mb-6"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <span className="text-5xl font-extrabold text-pink-800">
+                SocialBloom
+              </span>
+            </motion.div>
+            <motion.h1
+              className="text-3xl font-extrabold mb-3 text-pink-600"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              {isLogin ? "Welcome Back" : "Join SocialBloom"}
+            </motion.h1>
+            <p className="text-gray-600 text-lg">
+              {isLogin
+                ? "Sign in to your account"
+                : "Create your account to get started"}
             </p>
           </div>
 
@@ -88,32 +105,60 @@ const Auth = () => {
             {!isLogin && (
               <>
                 <div>
-                  <Label htmlFor="fullName">Full Name</Label>
+                  <Label
+                    htmlFor="fullName"
+                    className="text-pink-500 text-lg font-semibold"
+                  >
+                    Full Name
+                  </Label>
                   <Input
                     id="fullName"
                     type="text"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="Enter your full name"
-                    className="mt-1"
+                    className="mt-2 py-5 border-2 border-pink-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 transition-all duration-300"
                     required
                   />
                 </div>
 
                 <div>
-                  <Label>Account Type</Label>
-                  <RadioGroup value={userType} onValueChange={setUserType} className="mt-2">
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="user" id="user" />
-                      <Label htmlFor="user" className="flex items-center">
-                        <Users className="w-4 h-4 mr-2" />
+                  <Label className="text-pink-500 text-lg font-semibold">
+                    Account Type
+                  </Label>
+                  <RadioGroup
+                    value={userType}
+                    onValueChange={(value) => setUserType(value as "user" | "vendor" | "admin")}
+                    className="mt-2 space-y-3"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <RadioGroupItem
+                        value="user"
+                        id="user"
+                        className="border-pink-300"
+                      />
+                      <Label
+                        htmlFor="user"
+                        className="flex items-center text-gray-700"
+                      >
+                        <UsersThree size={20} className="mr-2 text-pink-500" />
                         Regular User
                       </Label>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="vendor" id="vendor" />
-                      <Label htmlFor="vendor" className="flex items-center">
-                        <ShoppingBag className="w-4 h-4 mr-2" />
+                    <div className="flex items-center space-x-3">
+                      <RadioGroupItem
+                        value="vendor"
+                        id="vendor"
+                        className="border-pink-300"
+                      />
+                      <Label
+                        htmlFor="vendor"
+                        className="flex items-center text-gray-700"
+                      >
+                        <ShoppingBagOpen
+                          size={20}
+                          className="mr-2 text-pink-500"
+                        />
                         Become a Vendor
                       </Label>
                     </div>
@@ -121,9 +166,14 @@ const Auth = () => {
                 </div>
               </>
             )}
-            
+
             <div>
-              <Label htmlFor="email">Email</Label>
+              <Label
+                htmlFor="email"
+                className="text-pink-500 text-lg font-semibold"
+              >
+                Email
+              </Label>
               <Input
                 id="email"
                 type="email"
@@ -131,12 +181,17 @@ const Auth = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
                 required
-                className="mt-1"
+                className="mt-2 py-5 border-2 border-pink-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 transition-all duration-300"
               />
             </div>
-            
+
             <div>
-              <Label htmlFor="password">Password</Label>
+              <Label
+                htmlFor="password"
+                className="text-pink-500 text-lg font-semibold"
+              >
+                Password
+              </Label>
               <Input
                 id="password"
                 type="password"
@@ -144,30 +199,54 @@ const Auth = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
                 required
-                className="mt-1"
+                className="mt-2 py-5  border-2 border-pink-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 transition-all duration-300"
               />
             </div>
 
-            <Button
-              type="submit"
-              className="w-full social-button bg-gradient-to-r from-pink-500 to-rose-400 hover:from-pink-600 hover:to-rose-500"
-              disabled={loading}
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.3 }}
             >
-              {loading ? "Please wait..." : isLogin ? "Sign In" : "Sign Up"}
-            </Button>
+              <Button
+                type="submit"
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 text-white font-semibold hover:from-pink-600 hover:to-rose-600 transition-all duration-300"
+                disabled={loading}
+              >
+                {loading ? (
+                  <motion.div
+                    className="flex items-center justify-center"
+                    animate={{ rotate: 360 }}
+                    transition={{
+                      duration: 1,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
+                  >
+                    <span className="w-5 h-5 border-4 border-t-transparent border-white rounded-full"></span>
+                  </motion.div>
+                ) : isLogin ? (
+                  "Sign In"
+                ) : (
+                  "Sign Up"
+                )}
+              </Button>
+            </motion.div>
           </form>
 
           <div className="mt-6 text-center">
-            <button
+            <motion.button
               onClick={() => setIsLogin(!isLogin)}
-              className="text-pink-600 hover:text-pink-700 font-medium"
-              type="button"
+              className="text-pink-600 hover:text-rose-600 font-medium text-lg transition-colors duration-300"
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.3 }}
             >
-              {isLogin ? "Need an account? Sign up" : "Already have an account? Sign in"}
-            </button>
+              {isLogin
+                ? "Need an account? Sign up"
+                : "Already have an account? Sign in"}
+            </motion.button>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 };

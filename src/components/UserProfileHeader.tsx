@@ -92,7 +92,7 @@ const UserProfileHeader = ({ profileUserId, profile, isOwnProfile, onEditProfile
   };
 
   return (
-    <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+    <div className="bg-transparent border-b border-gray-200 dark:border-gray-700">
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
           {/* Avatar */}

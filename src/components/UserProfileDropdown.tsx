@@ -1,8 +1,8 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/hooks/use-toast";
+import { User, LogOut, UserCircle, Settings } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,88 +12,80 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, Package, Settings, LogOut, Heart, Moon, Sun } from "lucide-react";
-import { useTheme } from "@/contexts/ThemeContext";
-import ThemeToggle from "@/components/ThemeToggle";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 const UserProfileDropdown = () => {
-  const { profile, signOut, user } = useAuth();
   const navigate = useNavigate();
+  const { user, profile, signOut } = useAuth();
   const { toast } = useToast();
-  const { theme, toggleTheme } = useTheme();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSignOut = async () => {
     try {
+      setIsLoading(true);
       await signOut();
-      toast({
-        title: "Signed out successfully",
-        description: "You have been logged out.",
-      });
-      navigate("/");
+      navigate('/auth');
+      toast({ title: "Signed out successfully" });
     } catch (error: any) {
-      toast({
-        title: "Error",
+      toast({ 
+        title: "Error signing out", 
         description: error.message,
-        variant: "destructive",
+        variant: "destructive" 
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleViewProfile = () => {
-    navigate(`/users/${user?.id}`);
+    if (user?.id) {
+      navigate(`/users/${user.id}`);
+    }
   };
+
+  const handleSettings = () => {
+    navigate('/settings');
+  };
+
+  if (!user) return null;
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Avatar className="cursor-pointer hover:ring-2 hover:ring-pink-200 transition-all">
-          <AvatarImage src={profile?.avatar_url} />
-          <AvatarFallback>
-            {profile?.full_name?.charAt(0) || profile?.email?.charAt(0) || 'U'}
-          </AvatarFallback>
-        </Avatar>
+        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={profile?.avatar_url} alt={profile?.full_name} />
+            <AvatarFallback>
+              {profile?.full_name?.[0] || user.email[0].toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+        </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56 bg-white dark:bg-gray-800 border-pink-100 dark:border-gray-700" align="end">
-        <DropdownMenuLabel>
+      <DropdownMenuContent className="w-56" align="end" forceMount>
+        <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none dark:text-white">
-              {profile?.full_name || 'User'}
+            <p className="text-sm font-medium leading-none">
+              {profile?.full_name || user.email}
             </p>
-            <p className="text-xs leading-none text-muted-foreground dark:text-gray-400">
-              {profile?.email}
+            <p className="text-xs leading-none text-muted-foreground">
+              {user.email}
             </p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleViewProfile} className="cursor-pointer dark:hover:bg-gray-700">
-          <User className="mr-2 h-4 w-4" />
+        <DropdownMenuItem onClick={handleViewProfile}>
+          <UserCircle className="mr-2 h-4 w-4" />
           <span>View Profile</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => navigate("/profile")} className="cursor-pointer dark:hover:bg-gray-700">
+        <DropdownMenuItem onClick={handleSettings}>
           <Settings className="mr-2 h-4 w-4" />
           <span>Settings</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => navigate("/wishlist")} className="cursor-pointer dark:hover:bg-gray-700">
-          <Heart className="mr-2 h-4 w-4" />
-          <span>My Wishlist</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => navigate("/orders")} className="cursor-pointer dark:hover:bg-gray-700">
-          <Package className="mr-2 h-4 w-4" />
-          <span>My Orders</span>
-        </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={toggleTheme} className="cursor-pointer dark:hover:bg-gray-700">
-          {theme === 'light' ? (
-            <Moon className="mr-2 h-4 w-4" />
-          ) : (
-            <Sun className="mr-2 h-4 w-4" />
-          )}
-          <span>Toggle theme</span>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-red-600 dark:text-red-400 dark:hover:bg-gray-700">
+        <DropdownMenuItem onClick={handleSignOut} disabled={isLoading}>
           <LogOut className="mr-2 h-4 w-4" />
-          <span>Sign out</span>
+          <span>{isLoading ? 'Signing out...' : 'Sign out'}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

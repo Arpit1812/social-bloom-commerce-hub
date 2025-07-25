@@ -94,6 +94,25 @@ const ProductDetail = () => {
     enabled: !!id,
   });
 
+  // Fetch discount tiers for this product
+  const { data: tiers } = useQuery({
+    queryKey: ['product-tiers', id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('product_discount_tiers')
+        .select('*')
+        .eq('product_id', id)
+        .order('tier_number');
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id,
+  });
+
+  // Determine if tiers exist
+  const hasTiers = tiers && tiers.length > 0;
+
   // Check if product is in wishlist
   const { data: isInWishlist = false } = useQuery({
     queryKey: ['wishlist-status', id, user?.id],
@@ -326,7 +345,7 @@ const ProductDetail = () => {
   return (
     <div className="min-h-screen">
       <Header />
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto mt-20 px-4 py-8">
         <div className="max-w-6xl mx-auto">
           <Button
             variant="ghost"
@@ -400,57 +419,59 @@ const ProductDetail = () => {
                   {addToCartMutation.isPending ? 'Adding...' : 'Add to Cart'}
                 </Button>
                 
-                <Dialog open={isGroupDialogOpen} onOpenChange={setIsGroupDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full border-pink-200 text-pink-600 hover:bg-pink-50"
-                      size="lg"
-                      disabled={!user} // Disable if user not logged in
-                    >
-                      <Users className="w-5 h-5 mr-2" />
-                      Create Group for this Product
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Create Group for {product.name}</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="groupName">Group Name</Label>
-                        <Input
-                          id="groupName"
-                          value={groupForm.name}
-                          onChange={(e) => setGroupForm({ ...groupForm, name: e.target.value })}
-                          placeholder="Enter group name"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="groupDescription">Description</Label>
-                        <Textarea
-                          id="groupDescription"
-                          value={groupForm.description}
-                          onChange={(e) => setGroupForm({ ...groupForm, description: e.target.value })}
-                          placeholder="Describe your group"
-                        />
-                      </div>
+                {hasTiers && (
+                  <Dialog open={isGroupDialogOpen} onOpenChange={setIsGroupDialogOpen}>
+                    <DialogTrigger asChild>
                       <Button
-                        onClick={() => {
-                          if (!user) {
-                            toast({ title: "Please login to create a group.", variant: "destructive"});
-                            return;
-                          }
-                          createGroupMutation.mutate();
-                        }}
-                        className="w-full"
-                        disabled={!groupForm.name || createGroupMutation.isPending || !user}
+                        variant="outline"
+                        className="w-full border-pink-200 text-pink-600 hover:bg-pink-50"
+                        size="lg"
+                        disabled={!user} // Disable if user not logged in
                       >
-                        {createGroupMutation.isPending ? 'Creating...' : 'Create Group'}
+                        <Users className="w-5 h-5 mr-2" />
+                        Create Group for this Product
                       </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Create Group for {product.name}</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <Label htmlFor="groupName">Group Name</Label>
+                          <Input
+                            id="groupName"
+                            value={groupForm.name}
+                            onChange={(e) => setGroupForm({ ...groupForm, name: e.target.value })}
+                            placeholder="Enter group name"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="groupDescription">Description</Label>
+                          <Textarea
+                            id="groupDescription"
+                            value={groupForm.description}
+                            onChange={(e) => setGroupForm({ ...groupForm, description: e.target.value })}
+                            placeholder="Describe your group"
+                          />
+                        </div>
+                        <Button
+                          onClick={() => {
+                            if (!user) {
+                              toast({ title: "Please login to create a group.", variant: "destructive"});
+                              return;
+                            }
+                            createGroupMutation.mutate();
+                          }}
+                          className="w-full"
+                          disabled={!groupForm.name || createGroupMutation.isPending || !user}
+                        >
+                          {createGroupMutation.isPending ? 'Creating...' : 'Create Group'}
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                )}
               </div>
             </div>
           </div>

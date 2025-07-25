@@ -19,6 +19,15 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				sans: ['Poppins', 'sans-serif'], 
+				cursive: ['"Edu NSW ACT Cursive"', 'cursive'],
+				pacifico: ['"Pacifico"', 'cursive'],
+				borel: ['"Borel"', 'cursive'],
+				condiment: ['"Condiment"', 'cursive'],
+				greatVibes: ['"Great Vibes"', 'cursive'],
+				tiny5: ['"Tiny5"', 'cursive'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -108,5 +117,5 @@ export default {
 			}
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
 } satisfies Config;
